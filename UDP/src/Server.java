@@ -14,7 +14,7 @@ public class Server {
 		DatagramSocket svrSocket = null;
 		
 		try{
-		svrSocket = new DatagramSocket(9999);
+		svrSocket = new DatagramSocket(20001);
 
 		}
 		catch (SocketException e){
@@ -23,35 +23,42 @@ public class Server {
 		
 		byte[] rec = new byte[1024];
 		byte[] send = new byte[1024];
-		byte[] ack = new byte[1024];
+
+		double ran = 0;
+		
+		int counter = 0;
+		
 		
 		while(true){
 			try{
+				DatagramPacket recPacket = new DatagramPacket(rec, rec.length);
+				svrSocket.receive(recPacket);
 				
-
-			DatagramPacket recPacket = new DatagramPacket(rec, rec.length);
-			svrSocket.receive(recPacket);
-			
-			
-			String line = new String(recPacket.getData(), 0 , recPacket.getLength());
-			//System.out.println("Received: " + line + "|||");
-			InetAddress IP = recPacket.getAddress();
-			int port = recPacket.getPort();
-			
-			System.out.println("From: " + IP + ":" + port);
-			System.out.println("Datagram length: " + rec.length);
-			System.out.println("Line length: " + line.length());
-			System.out.println("Message: " + line + "\n\n");
-			
-			ack = "ACK".getBytes();
-			DatagramPacket ackPacket = new DatagramPacket(ack, ack.length, IP, port);	
-			svrSocket.send(ackPacket);
-			
-			//String lineCap = line.toUpperCase();
-			//send = lineCap.getBytes();
-			
-			//DatagramPacket sendPacket = new DatagramPacket(send, send.length, IP, port);
-			//svrSocket.send(sendPacket);
+				String line = new String(recPacket.getData(), 0 , recPacket.getLength());
+				//System.out.println("Received: " + line + "|||");
+				InetAddress IP = recPacket.getAddress();
+				int port = recPacket.getPort();
+				
+				System.out.println("From: " + IP + ":" + port);
+				//System.out.println("Datagram length: " + rec.length);
+				//System.out.println("Line length: " + line.length());
+				System.out.println("Message: " + line);
+				
+				//ack = "ACK".getBytes();
+				//DatagramPacket ackPacket = new DatagramPacket(ack, ack.length, IP, port);	
+				//svrSocket.send(ackPacket);
+				
+				send = line.getBytes();
+					
+				DatagramPacket sendPacket = new DatagramPacket(send, send.length, IP, port);
+				if (counter % 2 != 0) {
+					svrSocket.send(sendPacket);
+				}
+				else{
+					System.out.println("Simulating dropped packet");
+				}
+				System.out.println(counter);
+				System.out.println();
 			}
 			catch (IOException e){
 				System.err.println(e);
